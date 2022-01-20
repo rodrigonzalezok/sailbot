@@ -17,49 +17,23 @@ import random
 # Creamos la instancia del navegador
 def browser_init():
     # Creamos las sesiones
-    global sesion_1, sesion_2, sesion_3, sesion_4
-    sesion_1 = webdriver.Chrome(executable_path=".\driver\chromedriver.exe")
-    sesion_2 = webdriver.Chrome(executable_path=".\driver\chromedriver.exe")
-    sesion_3 = webdriver.Chrome(executable_path=".\driver\chromedriver.exe")
-    sesion_4 = webdriver.Chrome(executable_path=".\driver\chromedriver.exe")
+    global browser
+    browser = webdriver.Chrome(executable_path=".\driver\chromedriver.exe")
     # Abrimos las páginas y maximizamos las ventanas
-    sesion_1.get('https://web.whatsapp.com/')
-    sesion_2.get('https://web.whatsapp.com/')
-    sesion_3.get('https://web.whatsapp.com/')
-    sesion_4.get('https://web.whatsapp.com/')
-    sesion_1.maximize_window()
-    sesion_2.maximize_window()
-    sesion_3.maximize_window()
-    sesion_4.maximize_window()
+    browser.get('https://web.whatsapp.com/')
+    browser.maximize_window()
     # Qr
     print("Por favor, escanea los códigos QR")
     # Esperamos a que se cargue la pagina
-    WebDriverWait(sesion_1, 30000).until(expected_conditions.visibility_of_element_located((By.ID, 'side')))
-    WebDriverWait(sesion_2, 30000).until(expected_conditions.visibility_of_element_located((By.ID, 'side')))
-    WebDriverWait(sesion_3, 30000).until(expected_conditions.visibility_of_element_located((By.ID, 'side')))
-    WebDriverWait(sesion_4, 30000).until(expected_conditions.visibility_of_element_located((By.ID, 'side')))
+    WebDriverWait(browser, 30000).until(expected_conditions.visibility_of_element_located((By.ID, 'side')))
     print("Whatsapp iniciado")
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #---------------------------------------- CÓDIGO QUE RECONOCE LOS MENSAJES Y OFRECE RESPUESTAS ACORDE A LAS MISMAS ---------------------------------------------------------
 
-# Creamos variable de sesiones
-global numero_sesion
-numero_sesion = 1
-
 # Mensajes a enviar
-def send_message(msj, n_sesion):
-
-    # Condicionamos la sesión desde la que se enviará el mensaje
-    if n_sesion == 1:
-        browser = sesion_1
-    elif n_sesion == 2:
-        browser = sesion_2
-    elif n_sesion == 3:
-        browser = sesion_3
-    elif n_sesion == 4:
-        browser = sesion_4
+def send_message(msj):
 
     # Utilizamos el diccionario json para elegir respuestas
     with open('./diccionario.json', encoding = "utf-8") as diccionario_mensajes:
@@ -77,8 +51,6 @@ def send_message(msj, n_sesion):
     except:
         pass
     
-################ Codigo de emoji  :emoji' u'1F916' 
-
     # Creamos variables
     mensaje_recibido = browser.find_elements(By.CSS_SELECTOR, 'div._22Msk div div._1Gy50')[-1].text
     mensaje_enviado = ""
@@ -202,15 +174,6 @@ def send_message(msj, n_sesion):
             escribir_mensaje.send_keys(diccionario.get('Respuesta a Relacion de Dependencia') + Keys.ENTER)
         except:
             print("No se pudo enviar el mensaje")
-
-    # Mensaje ELIGE 2 O MÁS TITULARES Y RESPONDE PIDIENDO FOTO FRENTE DNI
-    if mensaje_enviado == "Responde con la letra correspondiente a la opción que desees." and mensaje_recibido.title() in diccionario.get('Cotitular'):
-        time.sleep(1)
-        # Enviamos un mensaje
-        try:
-            escribir_mensaje.send_keys(diccionario.get('Respuesta a Cotitular') + Keys.ENTER)
-        except:
-            print("No se pudo enviar el mensaje")
 """
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -221,17 +184,13 @@ def check_new_message():
     while True:
         system("cls")
         # Almacenamos los mensajes nuevos
-        caja_mensajes = sesion_1.find_elements(By.CSS_SELECTOR, 'div._1pJ9J span._23LrM')
+        caja_mensajes = browser.find_elements(By.CSS_SELECTOR, 'div._1pJ9J span._23LrM')
         contador = 0
         # Si hay mensajes nuevos
         if len(caja_mensajes) > 0:
             # Recorremos todas las cajas de mensajes
             for mensaje in caja_mensajes:
-                global numero_sesion
-                send_message(mensaje, numero_sesion)
-                numero_sesion += 1
-                if numero_sesion > 4:
-                    numero_sesion = 1
+                send_message(mensaje)
                 contador += 1
                 time.sleep(1)
                 print("Quedan",contador,"mensajes nuevos")
